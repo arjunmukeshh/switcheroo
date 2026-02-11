@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESP32Servo.h>
+#include <ESPmDNS.h>
 #include "config.h"
 
 
@@ -65,6 +66,14 @@ void setup() {
   Serial.println("\nWiFi Connected!");
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
+
+  if (!MDNS.begin("switcheroo")) {
+    Serial.println("Error setting up MDNS responder!");
+  } else {
+    Serial.println("mDNS responder started: switcheroo.local");
+    // Add service to mDNS-SD
+    MDNS.addService("http", "tcp", 80);
+  }
 
   // Setup Server
   server.on("/", handleRoot);
