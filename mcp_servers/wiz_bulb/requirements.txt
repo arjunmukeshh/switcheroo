@@ -1,0 +1,4 @@
+mcp
+pywizlight
+asyncio
+python-dotenv
