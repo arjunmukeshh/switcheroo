@@ -6,3 +6,6 @@ __pycache__/
 .env
 .env.local
 .DS_Store
+
+# Firmware secrets
+firmware/esp32_servo/config.h

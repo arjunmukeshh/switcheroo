@@ -4,8 +4,8 @@ from mcp.server.fastmcp import FastMCP
 from pywizlight import wizlight, PilotBuilder, discovery
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
+
 DEFAULT_BULB_IP = os.getenv("WIZ_BULB_IP")
 
 mcp = FastMCP("Wiz Bulb Server")
