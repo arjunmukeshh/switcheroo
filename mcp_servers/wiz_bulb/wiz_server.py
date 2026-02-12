@@ -109,5 +109,23 @@ async def get_status(ip_address: str = None):
     except Exception as e:
         return f"Error getting status: {str(e)}"
 
+import argparse
+
 if __name__ == "__main__":
-    mcp.run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--transport", default="stdio", choices=["stdio", "sse", "streamable-http"])
+    parser.add_argument("--port", type=int, default=8001)
+    args = parser.parse_args()
+
+    if args.transport == "sse":
+        mcp.settings.port = args.port
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.transport_security = None
+        print(f"Starting Wiz Bulb MCP Server on http://0.0.0.0:{args.port}/sse")
+    elif args.transport == "streamable-http":
+        mcp.settings.port = args.port
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.transport_security = None
+        print(f"Starting Wiz Bulb MCP Server on http://0.0.0.0:{args.port}/mcp")
+
+    mcp.run(transport=args.transport)
