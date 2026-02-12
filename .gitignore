@@ -9,3 +9,6 @@ __pycache__/
 
 # Firmware secrets
 firmware/esp32_servo/config.h
+
+gateway_debug.log
+verify_devices.py

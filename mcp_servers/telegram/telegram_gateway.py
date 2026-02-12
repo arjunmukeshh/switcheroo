@@ -105,12 +105,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Forward to Archestra
     reply_from_archestra = await forward_to_archestra(user_text)
 
+    # Handle empty responses (actions without text)
+    if not reply_from_archestra or not reply_from_archestra.strip():
+        reply_from_archestra = "[SUCCESS] Action executed (no text reply)."
+
     # Send the reply back to Telegram
-    await context.bot.edit_message_text(
-        chat_id=update.effective_chat.id,
-        message_id=placeholder_msg.message_id,
-        text=reply_from_archestra
-    )
+    try:
+        await context.bot.edit_message_text(
+            chat_id=update.effective_chat.id,
+            message_id=placeholder_msg.message_id,
+            text=reply_from_archestra
+        )
+    except Exception as e:
+        print(f"Gateway: Failed to edit message: {e}")
+        # Fallback if edit fails
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=reply_from_archestra
+        )
 
 if __name__ == "__main__":
     if not BOT_TOKEN or not ARCHESTRA_AGENT_ID or not ARCHESTRA_API_KEY:

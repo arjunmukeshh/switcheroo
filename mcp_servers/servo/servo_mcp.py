@@ -28,32 +28,6 @@ class ESP32Listener:
     def update_service(self, zeroconf, type, name):
         pass
 
-def get_esp32_ip():
-    """
-    Resolve ESP32 IP via mDNS or fallback to env var.
-    """
-    # 1. Try mDNS discovery
-    zeroconf = Zeroconf()
-    listener = ESP32Listener()
-    browser = ServiceBrowser(zeroconf, "_http._tcp.local.", listener)
-    
-    # Wait briefly for discovery
-    start_time = time.time()
-    while time.time() - start_time < 3.0:
-        if listener.address:
-            zeroconf.close()
-            return listener.address
-        time.sleep(0.1)
-    
-    zeroconf.close()
-
-    # 2. Fallback to Env Var
-    if ESP32_IP:
-        return ESP32_IP
-    
-    # 3. Default Fallback (for testing)
-    return "192.168.0.106"
-
 mcp = FastMCP("Servo Switch Controller")
 
 @mcp.tool()
@@ -66,13 +40,22 @@ async def toggle_switch(state: str):
     if state.lower() not in ["on", "off"]:
         return "Error: State must be 'on' or 'off'"
     
-    ip = get_esp32_ip()
+    # Simple logic: Try ENV first, then default. 
+    # Skipping blocking mDNS for now to ensure speed and reliability.
+    ip = os.getenv("ESP32_IP", "192.168.0.101")
+    
     base_url = f"http://{ip}"
+    print(f"Attempting to toggle switch {state} at {base_url}...")
     
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             # The ESP32 endpoint expects a query parameter 'state'
-            response = await client.get(f"{base_url}/toggle", params={"state": state.lower()})
+            # Note: Using string concatenation for the URL to avoid any params encoding issues
+            full_url = f"{base_url}/toggle?state={state.lower()}"
+            print(f"HTTP Request: GET {full_url}")
+            
+            response = await client.get(full_url)
+            print(f"Response: {response.text}")
             response.raise_for_status()
             
             # Try to parse JSON response, fallback to text if not JSON

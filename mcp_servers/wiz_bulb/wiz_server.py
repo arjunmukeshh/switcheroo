@@ -37,9 +37,12 @@ async def turn_on(ip_address: str = None, brightness: int = 255):
     :param brightness: Brightness level (0-255). Default is 255.
     """
     try:
-        light = await get_light(ip_address)
-        await light.turn_on(PilotBuilder(brightness=brightness))
         ip = ip_address or DEFAULT_BULB_IP
+        if not ip:
+            return "Error: No IP."
+        light = wizlight(ip)
+        # Explicit pilot builder purely for brightness
+        await light.turn_on(PilotBuilder(brightness=brightness))
         return f"Bulb {ip} turned on with brightness {brightness}"
     except Exception as e:
         return f"Error turning on bulb: {str(e)}"
@@ -68,12 +71,44 @@ async def set_color(r: int, g: int, b: int, ip_address: str = None):
     :param ip_address: The IP address of the bulb. Defaults to WIZ_BULB_IP env var.
     """
     try:
-        light = await get_light(ip_address)
-        await light.turn_on(PilotBuilder(rgb=(r, g, b)))
         ip = ip_address or DEFAULT_BULB_IP
+        if not ip:
+            return "Error: No IP address provided and WIZ_BULB_IP not set."
+            
+        light = wizlight(ip)
+        # Using PilotBuilder explicitly for RGB
+        await light.turn_on(PilotBuilder(rgb=(r, g, b)))
         return f"Bulb {ip} set to color RGB({r}, {g}, {b})"
     except Exception as e:
         return f"Error setting color: {str(e)}"
+
+@mcp.tool()
+async def flash_bulb(times: int = 1, color_rgb: tuple[int, int, int] = (255, 0, 0), delay_seconds: float = 0.5):
+    """
+    Flash the bulb a specified number of times with a specific color.
+    :param times: Number of times to flash.
+    :param color_rgb: Tuple of (r, g, b) for the flash color. Default Red.
+    :param delay_seconds: Time on/off in seconds.
+    """
+    try:
+        ip = DEFAULT_BULB_IP
+        if not ip:
+            return "Error: WIZ_BULB_IP not set."
+            
+        light = wizlight(ip)
+        
+        for i in range(times):
+            # Turn ON with color
+            await light.turn_on(PilotBuilder(rgb=color_rgb))
+            await asyncio.sleep(delay_seconds)
+            
+            # Turn OFF (or dim) - turning off is clearer for a flash
+            await light.turn_off()
+            await asyncio.sleep(delay_seconds)
+            
+        return f"Bulb flashed {times} times."
+    except Exception as e:
+        return f"Error flashing bulb: {str(e)}"
 
 @mcp.tool()
 async def set_warmth(kelvin: int, ip_address: str = None):

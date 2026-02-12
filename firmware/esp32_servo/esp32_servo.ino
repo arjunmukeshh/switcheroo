@@ -11,9 +11,9 @@ WebServer server(80);
 void pressSwitch(bool turnOn) {
   int targetAngle;
   if (turnOn) {
-    targetAngle = SERVO_NEUTRAL_ANGLE + SERVO_PRESS_AMPLITUDE;
+    targetAngle = SERVO_NEUTRAL_ANGLE + SERVO_PRESS_AMPLITUDE_ON;
   } else {
-    targetAngle = SERVO_NEUTRAL_ANGLE - SERVO_PRESS_AMPLITUDE;
+    targetAngle = SERVO_NEUTRAL_ANGLE - SERVO_PRESS_AMPLITUDE_OFF;
   }
 
   // 1. Move to target angle (Press)
