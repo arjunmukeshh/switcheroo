@@ -88,7 +88,7 @@ pip install -r mcp_servers/timekeeper/requirements.txt
 ```
 
 ### 3. Orchestration Platform
-Switcheroo requires Archestra to be running. Get started with Archestra [here](www.archestra.ai). Use the following quickstart to deploy the containerized platform:
+Switcheroo requires Archestra to be running. Get started with Archestra [here](https://www.archestra.ai). Use the following quickstart to deploy the containerized platform:
 
 ```bash
 docker run -p 9000:9000 -p 3000:3000 \
