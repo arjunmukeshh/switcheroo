@@ -6,9 +6,7 @@ Switcheroo is an agentic environment control system that bridges digital trigger
 
 This project was born out of a desire to move beyond "smart-enough" devices that require manual interaction. By giving the room agency, Switcheroo ensures that important notifications or schedules manifest as unavoidable physical changes in the environment.
 
-For a deeper dive into the motivation and story behind development, see [**And AI said, Let there be Light.**](./blog_post.md).
-
----
+For a deeper dive into the motivation and story behind development, see [**And AI said, Let there be Light.**](./blog_post.md)
 
 ## Technical Architecture
 
@@ -16,8 +14,8 @@ The system is built on a hub-and-spoke model where a central **Head Agent** orch
 
 ```mermaid
 graph TD
-    User(User) <-->|Telegram| TelegramGW[Telegram Gateway]
-    TelegramGW <--> HeadAgent[Head Agent]
+    User(User) -- Message --> TG_Gate[telegram_gateway.py]
+    TG_Gate -- Archestra API --> HeadAgent[Head Agent]
     
     subgraph "Orchestration Layer (Archestra)"
         HeadAgent --> Analyst[Analyst Agent]
@@ -30,7 +28,12 @@ graph TD
         Hardware <-->|MCP| ServoMCP[Servo MCP Server]
         Hardware <-->|MCP| WizMCP[WiZ Bulb MCP Server]
         Analyst <-->|MCP| Tavily[Tavily Search MCP]
+        Timekeeper <-->|MCP| TK_MCP[timekeeper.py MCP]
+        GitHub <-->|MCP| GH_MCP[Official GitHub MCP]
     end
+    
+    HeadAgent -- Response --> Bot_MCP[telegram_bot.py MCP]
+    Bot_MCP -- Telegram --> User
     
     subgraph "Physical Endpoints"
         ServoMCP -->|HTTP| ESP32[ESP32 Controller]
@@ -41,16 +44,16 @@ graph TD
 
 ### Core Components
 
-*   **Orchestration**: Managed via Archestra. The Head Agent receives natural language via Telegram and routes to the appropriate specialist.
+*   **Ingress Flow**: Messages are received via Telegram by `telegram_gateway.py`, which forwards them to the Head Agent via the Archestra API.
+*   **Egress Flow**: Agent responses are sent back to the user via the `telegram_bot.py` MCP server.
+*   **Orchestration**: Managed via Archestra. The Head Agent receives natural language and routes to the appropriate specialist.
 *   **Hardware Interface**:
     *   **Wiz Bulb**: Controlled via local UDP broadcasts using the [`pywizlight`](https://github.com/tristanpepin/pywizlight) library.
     *   **ESP32 Servo**: A custom Wi-Fi enabled controller that physically toggles non-smart wall switches using a standard servo motor.
 *   **Specialist Agents**:
-    *   **Timekeeper**: Handles scheduling, countdowns, and time-based triggers.
-    *   **Analyst**: Integrated with Tavily for real-time web research and fact-checking.
-    *   **GitHub**: Polls/monitors repository workflows.
-
----
+    *   **Timekeeper**: Handles scheduling and triggers via the `timekeeper.py` MCP.
+    *   **Analyst**: Integrated with Tavily for real-time web research.
+    *   **GitHub**: Monitors repository workflows using the official GitHub MCP.
 
 ## Hardware Configuration
 
@@ -63,8 +66,6 @@ The physical switch controller uses an ESP32 to drive a servo motor mounted to a
 
 ### Lighting (WiZ)
 Requires a Phillips WiZ compatible bulb on the same local network. The IP address must be static or reserved in DHCP.
-
----
 
 ## Setup and Installation
 
@@ -97,6 +98,7 @@ docker run -p 9000:9000 -p 3000:3000 \
     -v archestra-app-data:/app/data \
     archestra/platform
 ```
+In the platform's MCP Registry, configure the Github MCP and the Tavily MCP as well. 
 
 ### 4. Configuration
 1.  Initialize the environment file: `cp .env.example .env`
@@ -114,15 +116,11 @@ Launch the suite of MCP servers and the Telegram gateway:
 python run_mcp_servers.py
 ```
 
----
-
 ## Usage Examples
 
 *   **Morning Routine**: "Good morning, set me up." (Triggers lighting scene + brief).
 *   **Reminders**: "Remind me in 10 minutes that the stove is on." (Triggers light pulse + physical switch cycle at T-0).
 *   **Research**: "Check the status of the latest workflow in the `switcheroo` repo."
-
----
 
 ## License
 MIT. Developed by [Arjun Mukesh](https://github.com/arjunmukeshh).
