@@ -8,7 +8,7 @@ This project was born out of a desire to move beyond "smart-enough" devices that
 
 For a deeper dive into the motivation and story behind development, see [**And AI said, Let there be Light.**](./blog_post.md)
 
-## Technical Architecture
+## How it works
 
 The system is built on a hub-and-spoke model where a central **Head Agent** orchestrates specialized sub-agents. Communication between the orchestration layer and localized hardware controllers is handled via MCP servers running over HTTP/SSE.
 
@@ -65,7 +65,7 @@ The physical switch controller uses an ESP32 to drive a servo motor mounted to a
 *   **Firmware**: Located in `firmware/esp32_servo/`. Rename `config.example.h` to `config.h` and update WiFi credentials before flashing.
 
 ### Lighting (WiZ)
-Requires a Phillips WiZ compatible bulb on the same local network. The IP address must be static or reserved in DHCP.
+Requires a Phillips WiZ compatible bulb on the same local network. 
 
 ## Setup and Installation
 
@@ -98,7 +98,6 @@ docker run -p 9000:9000 -p 3000:3000 \
     -v archestra-app-data:/app/data \
     archestra/platform
 ```
-In the platform's MCP Registry, configure the Github MCP and the Tavily MCP as well. 
 
 ### 4. Configuration
 1.  Initialize the environment file: `cp .env.example .env`
@@ -109,12 +108,17 @@ In the platform's MCP Registry, configure the Github MCP and the Tavily MCP as w
     *   `ARCHESTRA_API_KEY`: Derived from the Archestra dashboard.
     *   `ARCHESTRA_AGENT_ID`: The ID of your configured Head Agent.
 
-### 5. Deployment
+### 5. Deployment of local MCP servers
 Launch the suite of MCP servers and the Telegram gateway:
 
 ```bash
 python run_mcp_servers.py
 ```
+
+### 6. Orchestrator Setup
+1. Add Local MCP servers, Github MCP and Tavily MCP to the MCP registry. 
+2. Configure Agents and Sub-agents according to the above flowchart. Write great system-prompts.
+3. Initiate chat :D
 
 ## Usage Examples
 
