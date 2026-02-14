@@ -1,6 +1,6 @@
 # Switcheroo
 
-Switcheroo is an agentic environment control system that bridges digital triggers with physical stimuli. It utilizes the Model Context Protocol (MCP) and Archestra to enable AI agents to orchestrate physical room states—specifically lighting and mechanical switches—to facilitate presence and focus.
+Switcheroo is an agentic environment control system that bridges digital triggers with physical stimuli. It utilizes the Model Context Protocol (MCP) and Archestra to enable AI agents to orchestrate physical room states, specifically lighting and mechanical switches to facilitate presence.
 
 ## Background
 
