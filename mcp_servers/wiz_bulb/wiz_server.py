@@ -144,6 +144,72 @@ async def get_status(ip_address: str = None):
     except Exception as e:
         return f"Error getting status: {str(e)}"
 
+@mcp.tool()
+async def breathing(r: int = 255, g: int = 255, b: int = 255, ip_address: str = None, speed: int = 100, brightness: int = 255):
+    """
+    Start the breathing (Pulse) effect on the bulb with a specific color.
+    :param r: Red component (0-255).
+    :param g: Green component (0-255).
+    :param b: Blue component (0-255).
+    :param ip_address: The IP address of the bulb. Defaults to WIZ_BULB_IP env var.
+    :param speed: The speed of the effect (10-200). Default is 100.
+    :param brightness: Brightness level (0-255). Default is 255.
+    """
+    try:
+        light = await get_light(ip_address)
+        # Scene 31 is the 'Pulse' effect which looks like breathing
+        await light.turn_on(PilotBuilder(rgb=(r, g, b), scene=31, speed=speed, brightness=brightness))
+        ip = ip_address or DEFAULT_BULB_IP
+        return f"Bulb {ip} set to breathing effect (Pulse) with color RGB({r}, {g}, {b}) and speed {speed}"
+    except Exception as e:
+        return f"Error setting breathing effect: {str(e)}"
+
+@mcp.tool()
+async def strobe(ip_address: str = None, speed: int = 100, brightness: int = 255):
+    """
+    Start a strobe effect on the bulb using the built-in 'Party' scene.
+    This effect cycles through colors rapidly.
+    :param ip_address: The IP address of the bulb. Defaults to WIZ_BULB_IP env var.
+    :param speed: The speed of the strobe (10-200). Default is 100.
+    :param brightness: Brightness level (0-255). Default is 255.
+    """
+    try:
+        light = await get_light(ip_address)
+        # Scene 4 is 'Party' which provides a multi-color strobe effect.
+        await light.turn_on(PilotBuilder(scene=4, speed=speed, brightness=brightness))
+        ip = ip_address or DEFAULT_BULB_IP
+        return f"Bulb {ip} set to strobe effect (Party scene) with speed {speed}"
+    except Exception as e:
+        return f"Error setting strobe effect: {str(e)}"
+
+@mcp.tool()
+async def manual_strobe(r: int = 255, g: int = 255, b: int = 255, ip_address: str = None, hz: float = 5.0, duration_seconds: float = 10.0):
+    """
+    Start a manual strobe effect with a specific color.
+    Note: High frequencies may be limited by network latency.
+    :param r: Red component (0-255).
+    :param g: Green component (0-255).
+    :param b: Blue component (0-255).
+    :param ip_address: The IP address of the bulb. Defaults to WIZ_BULB_IP env var.
+    :param hz: Frequency of the strobe in Hertz (flashes per second). Default 5.0.
+    :param duration_seconds: Total duration of the strobe effect. Default 10.0.
+    """
+    try:
+        light = await get_light(ip_address)
+        ip = ip_address or DEFAULT_BULB_IP
+        period = 1.0 / hz / 2.0
+        num_cycles = int(duration_seconds * hz)
+        
+        for _ in range(num_cycles):
+            await light.turn_on(PilotBuilder(rgb=(r, g, b)))
+            await asyncio.sleep(period)
+            await light.turn_off()
+            await asyncio.sleep(period)
+            
+        return f"Manual strobe effect completed on {ip}"
+    except Exception as e:
+        return f"Error with manual strobe effect: {str(e)}"
+
 import argparse
 
 if __name__ == "__main__":
