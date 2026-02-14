@@ -6,7 +6,7 @@ Switcheroo is an agentic environment control system that bridges digital trigger
 
 This project was born out of a desire to move beyond "smart-enough" devices that require manual interaction. By giving the room agency, Switcheroo ensures that important notifications or schedules manifest as unavoidable physical changes in the environment.
 
-For a deeper dive into the motivation and story behind development, see [**And AI said, Let there be Light.**](./blog_post.md)
+For a deeper dive into the motivation and story behind development, see [**And AI said, Let there be Light.**](https://arjunmukesh.com/posts/ai-light-and-life-orchestrator)
 
 ## How it works
 
@@ -48,7 +48,7 @@ graph TD
 *   **Egress Flow**: Agent responses are sent back to the user via the `telegram_bot.py` MCP server.
 *   **Orchestration**: Managed via Archestra. The Head Agent receives natural language and routes to the appropriate specialist.
 *   **Hardware Interface**:
-    *   **Wiz Bulb**: Controlled via local UDP broadcasts using the [`pywizlight`](https://github.com/tristanpepin/pywizlight) library.
+    *   **Wiz Bulb**: Controlled via local UDP broadcasts using the [`pywizlight`](https://github.com/sbidy/pywizlight) library.
     *   **ESP32 Servo**: A custom Wi-Fi enabled controller that physically toggles non-smart wall switches using a standard servo motor.
 *   **Specialist Agents**:
     *   **Timekeeper**: Handles scheduling and triggers via the `timekeeper.py` MCP.
